@@ -1,0 +1,8 @@
+---
+:scr: default.sh
+:sources:
+  mane.cxx:
+    :deps:
+      standart: mixin
+      system: mixin
+    :sample: default

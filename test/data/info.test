@@ -1,0 +1,44 @@
+ELF file on AMD x86-64
+with entry point: 0x14000
+Section headers:
+.interp: 0x2a8
+.note.gnu.build-id: 0x2c4
+.note.ABI-tag: 0x2e8
+.gnu.hash: 0x308
+.dynsym: 0x3f0
+.dynstr: 0x20a0
+.gnu.version: 0x55aa
+.gnu.version_r: 0x5810
+.rela.dyn: 0x5950
+.rela.plt: 0x10948
+.init: 0x13000
+.plt: 0x13020
+.plt.got: 0x13fd0
+.text: 0x14000
+.fini: 0xcdf88
+.rodata: 0xce000
+.eh_frame_hdr: 0xd5a70
+.eh_frame: 0xe7b20
+.gcc_except_table: 0x132390
+.init_array: 0x138c88
+.fini_array: 0x138c98
+.data.rel.ro: 0x138ca0
+.dynamic: 0x13cd88
+.got: 0x13cf98
+.got.plt: 0x13d000
+.data: 0x13d800
+.bss: 0x13dd00
+.comment: 0x0
+.symtab: 0x0
+.strtab: 0x0
+.shstrtab: 0x0
+
+Program headers:
+phdr is at 0x40
+interpreter: /lib64/ld-linux-x86-64.so.2
+text segment is at 0x0
+data segment is at 0x13000
+data segment is at 0xce000
+data segment is at 0x138c88
+dynamic is at 0x13cd88
+note is at 0x2c4

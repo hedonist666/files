@@ -1,0 +1,7 @@
+file.cxx: In function ‘int main()’:
+file.cxx:104:16: internal compiler error: Segmentation fault
+  104 |   ELF64 exec {p};
+      |                ^
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <https://bugs.archlinux.org/> for instructions.

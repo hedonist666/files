@@ -1,0 +1,10 @@
+file.cxx:37:8: error: no member named 'filesystem' in namespace 'std'
+  std::filesystem::path p;
+  ~~~~~^
+file.cxx:39:13: error: no member named 'filesystem' in namespace 'std'
+  File(std::filesystem::path p, const char* mode = "r+") : p {p} {
+       ~~~~~^
+file.cxx:103:8: error: no member named 'filesystem' in namespace 'std'
+  std::filesystem::path p {"a.out"};
+  ~~~~~^
+3 errors generated.

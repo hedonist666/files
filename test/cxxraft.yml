@@ -1,0 +1,8 @@
+---
+:scr: default.sh
+:sources:
+  test_file.cxx:
+    :deps:
+      catch: local
+      standart: mixin
+    :sample: test
