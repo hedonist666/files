@@ -13,21 +13,6 @@
 
 #include "../src/file.cxx"
 
-
-TEST_CASE("testing executables") {
-
-  ifstream info { (path{"data"} / path{"info.test"}).c_str()};
-  stringstream buf;
-  buf << info.rdbuf();
-  ELF64 e { path{"data"} / path{"a.out"} };
-
-  SECTION("show") {
-    REQUIRE( e.show() == buf.str());    
-  }
-
-}
-
-
 TEST_CASE("testing insertion") {
 
   vector<char> chs;
@@ -54,15 +39,17 @@ TEST_CASE("testing insertion") {
   File from{ path{"data"} / path{"2.test"} };
 
   read_file(from);
+  
+  size_t n = find(chs.begin(), chs.end(), '\n') - chs.begin();
 
   SECTION("mirror_insert") {
-    mirror_insert(to, chs, 41); //const
+    mirror_insert(to, chs, n); //const
     read_file(to);
     REQUIRE(equal(chs.begin(), chs.end(), res.begin()));
   }
 
   SECTION("insert_byte_by_byte") {
-    insert_byte_by_byte(to, chs, 41); //const
+    insert_byte_by_byte(to, chs, n); //const
     read_file(to);
     REQUIRE(equal(chs.begin(), chs.end(), res.begin()));
   }
