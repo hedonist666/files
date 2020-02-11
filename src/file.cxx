@@ -164,10 +164,6 @@ struct File {
 
 
 void insert_byte_by_byte(File exec, vector<char>& bs, size_t pos = -1) {
-  vector<char> wbuf(bs.size()), rbuf(bs.size());
-  
-  size_t fin{ exec.size() + bs.size() };
-
   if (pos != -1) {
     exec.seek(pos);
   }
@@ -175,24 +171,11 @@ void insert_byte_by_byte(File exec, vector<char>& bs, size_t pos = -1) {
     pos = ftell(exec.f);
   }
 
-  if (auto n = exec.gets(wbuf); n < wbuf.size()) {
-    wbuf.resize(n);
-  }
-
+  vector<char> rem(exec.size() - pos);
+  exec.gets(rem);
   exec.seek(pos);
   exec.puts(bs);
-  pos += bs.size();
-
-  while (pos < fin) {
-    if (auto n = exec.gets(rbuf); n < rbuf.size()) {
-      rbuf.resize(n);
-    }
-    exec.seek(pos);
-    exec.puts(wbuf);
-    pos += bs.size();
-    swap(rbuf, wbuf);
-  }
-
+  exec.puts(rem);
 }
 
 void mirror_insert(File exec, vector<char>& bs, size_t pos) {

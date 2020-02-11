@@ -104,17 +104,23 @@ struct PE : File {
   PIMAGE_THUNK_DATA thunkData {};
   
   PE(path p) : File{p} {
-    
+
   }
 };
+
 
 struct Executable : File {
 
    
+  enum exec_t {
+    ELF,
+    ELF64,
+    PE 
+  } type;
+
 
   Executable(path p) : File{p} {
 
   }
 
 };
-
