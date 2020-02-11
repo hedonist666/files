@@ -90,10 +90,29 @@ struct ELF : File {
 using ELF64 = ELF<Elf64_Ehdr, Elf64_Phdr, Elf64_Shdr>;
 using ELF32 = ELF<Elf32_Ehdr, Elf32_Phdr, Elf32_Shdr>;
 
+struct PE : File {
 
-struct Executable {
+  using File::puts;
+  using File::gets;
+  using File::createMap;
+  using File::mem;
 
-  Executable(path p) {
+  PIMAGE_DOS_HEADER dos {};
+  PIMAGE_NT_HEADERS nt {};
+  PIMAGE_SECTION_HEADER shdr {};
+  PIMAGE_SECION_HEADER import_section {};
+  PIMAGE_THUNK_DATA thunkData {};
+  
+  PE(path p) : File{p} {
+    
+  }
+};
+
+struct Executable : File {
+
+   
+
+  Executable(path p) : File{p} {
 
   }
 

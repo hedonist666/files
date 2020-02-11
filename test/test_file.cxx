@@ -22,10 +22,6 @@ TEST_CASE("testing insertion") {
     f.gets(chs);
   };
 
-  File res_file { path{"data"} / path{"res.test"} };
-  read_file(res_file);
-  decltype(chs) res;
-  swap(res, chs);
 
   auto tmp { path{"data"} / path{"0.test"} };
 
@@ -40,18 +36,28 @@ TEST_CASE("testing insertion") {
 
   read_file(from);
   
+  
   size_t n = find(chs.begin(), chs.end(), '\n') - chs.begin();
+
+  stringstream ss;
+
+  read_file(to);
+  for (size_t i{}; i < n; ++i) ss << chs[i];
+  read_file(from);
+  for (size_t i{n}; i < from.size(); ++i) ss << chs[i];
+  read_file(to);
+  for (size_t i{n + from.size()}; i < to.size(); ++i) ss << chs[i];
 
   SECTION("mirror_insert") {
     mirror_insert(to, chs, n); //const
     read_file(to);
-    REQUIRE(equal(chs.begin(), chs.end(), res.begin()));
+    REQUIRE(equal(chs.begin(), chs.end(), ss.str().begin()));
   }
 
   SECTION("insert_byte_by_byte") {
     insert_byte_by_byte(to, chs, n); //const
     read_file(to);
-    REQUIRE(equal(chs.begin(), chs.end(), res.begin()));
+    REQUIRE(equal(chs.begin(), chs.end(), ss.str().begin()));
   }
 
 }

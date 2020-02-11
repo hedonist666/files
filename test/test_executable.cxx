@@ -20,7 +20,7 @@ TEST_CASE("testing executables") {
   buf << info.rdbuf();
   ELF64 e { path{"data"} / path{"a.out"} };
 
-  SECTION("show") {
+  SECTION("elf show") {
     REQUIRE( e.show() == buf.str());    
   }
 

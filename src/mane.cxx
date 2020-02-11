@@ -1,3 +1,5 @@
+#define PRODUCTION
+
 #include "actions.cxx"
 
 

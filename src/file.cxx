@@ -15,7 +15,9 @@ using namespace std::filesystem;
 using namespace std;
 
 #ifndef TEST
+#ifndef PRODUCTION
 #define CLI
+#endif
 #endif
 
 #define SHOW
