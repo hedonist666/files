@@ -1,6 +1,5 @@
 #include "executable.cxx"
 
-template <typename F, F ins>
 void text_end_insert(auto exec, vector<char>& bs) {
 
   char* txt_addr, par_addr, old_entry, end_of_txt;

@@ -32,17 +32,7 @@ auto parse_args(int argc, char** argv) {
     
     cout << "ok. executing function..." << endl;
 
-    if (n > 2) {
-      if (string{args[2]} == "mirror-insert") {
-        return text_end_insert<decltype(mirror_insert), mirror_insert>(ex, v);        
-      }
-      else if (string{args[2]} == "insert-byte-by-byte") {
-        return text_end_insert<decltype(insert_byte_by_byte), insert_byte_by_byte>(ex, v);        
-      }
-    }
-    cout << "using default mirror-insert function" << endl; 
-
-    return text_end_insert<decltype(mirror_insert), mirror_insert>(ex, v);        
+    return text_end_insert(ex, v);        
 
   };
 

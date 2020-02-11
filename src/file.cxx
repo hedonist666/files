@@ -14,11 +14,6 @@
 using namespace std::filesystem;
 using namespace std;
 
-#ifndef TEST
-#ifndef PRODUCTION
-#define CLI
-#endif
-#endif
 
 #define SHOW
 
@@ -136,7 +131,7 @@ struct File {
     return fread(bs.data(), 1, bs.size(), f);
   }
 
-  size_t puts(vector<char>& bs) {
+  size_t puts(const vector<char>& bs) {
     return fwrite(bs.data(), 1, bs.size(), f);
   }
 
@@ -144,13 +139,16 @@ struct File {
     return fread(bs, 1, len, f);
   }
 
-  size_t puts(char* bs, size_t len) {
+  size_t puts(const char* bs, size_t len) {
     return fwrite(bs, 1, len, f);
   }
 
   void seek(size_t offset, int whence = SEEK_SET) {
     fseek(f, offset, whence);
   }
+
+  void insert(const vector<char>&, size_t);
+  void insert(const char*,size_t, size_t);
 
   ~File() {
     fclose(f);
@@ -163,36 +161,36 @@ struct File {
 #endif
 
 
-void insert_byte_by_byte(File exec, vector<char>& bs, size_t pos = -1) {
+void File::insert(const vector<char>& bs, size_t pos = -1) {
+
   if (pos != -1) {
-    exec.seek(pos);
+    seek(pos);
   }
   else {
-    pos = ftell(exec.f);
+    pos = ftell(f);
   }
 
-  vector<char> rem(exec.size() - pos);
-  exec.gets(rem);
-  exec.seek(pos);
-  exec.puts(bs);
-  exec.puts(rem);
+  vector<char> rem(size() - pos);
+  gets(rem);
+  seek(pos);
+  puts(bs);
+  puts(rem);
+
 }
 
-void mirror_insert(File exec, vector<char>& bs, size_t pos) {
-  const path tmp {{'.', 'l','t'}};
-  File copy {tmp, "w+" };
-  copy.puts(exec.map(), pos);
-  copy.puts(bs);
-  copy.puts(exec.map() + pos, exec.size() - pos);   
-  rename(tmp, exec.p);
+void File::insert(const char* bs, size_t len, size_t pos = -1) {
+
+  if (pos != -1) {
+    seek(pos);
+  }
+  else {
+    pos = ftell(f);
+  }
+
+  vector<char> rem(size() - pos);
+  gets(rem);
+  seek(pos);
+  puts(bs, len);
+  puts(rem);
+
 }
-
-
-#ifdef CLI
-
-int main() {
-  ELF64 e {path {"test"} / path{"data"} / path {"a.out"}};
-  cout << e.show();
-}
-
-#endif

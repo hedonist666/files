@@ -1,5 +1,12 @@
 #include "file.cxx"
 
+
+#ifndef TEST
+#ifndef PRODUCTION
+#define CLI
+#endif
+#endif
+
 template <typename EHDR_T, typename PHDR_T, typename SHDR_T>
 struct ELF : File {
 
@@ -90,6 +97,7 @@ struct ELF : File {
 using ELF64 = ELF<Elf64_Ehdr, Elf64_Phdr, Elf64_Shdr>;
 using ELF32 = ELF<Elf32_Ehdr, Elf32_Phdr, Elf32_Shdr>;
 
+#ifdef PE
 struct PE : File {
 
   using File::puts;
@@ -104,9 +112,12 @@ struct PE : File {
   PIMAGE_THUNK_DATA thunkData {};
   
   PE(path p) : File{p} {
+    dos = static_cast<decltype(dos)>(mem);
+    nt  = static_cast<decltype(nt)>(mem + dos->e_lfanew);
 
   }
 };
+#endif
 
 
 struct Executable : File {
@@ -124,3 +135,13 @@ struct Executable : File {
   }
 
 };
+
+
+#ifdef CLI
+
+int main() {
+  ELF64 e {path {"test"} / path{"data"} / path {"a.out"}};
+  cout << e.show();
+}
+
+#endif

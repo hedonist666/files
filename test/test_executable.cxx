@@ -13,15 +13,24 @@
 
 #include "../src/executable.cxx"
 
-TEST_CASE("testing executables") {
+auto datadir {path {"data"}};
 
-  ifstream info { (path{"data"} / path{"info.test"}).c_str()};
+const auto readfile = [] (auto p) {
+  ifstream info { ( datadir / p ).c_str()};
   stringstream buf;
   buf << info.rdbuf();
+  return buf.str();
+};
+
+
+TEST_CASE("testing executables") {
+
+  string info { readfile(path{"info.test"}) };
+
   ELF64 e { path{"data"} / path{"a.out"} };
 
   SECTION("elf show") {
-    REQUIRE( e.show() == buf.str());    
+    REQUIRE( e.show() == info );    
   }
 
 }
