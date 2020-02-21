@@ -15,11 +15,11 @@ using namespace std::filesystem;
 using namespace std;
 
 
-#define SHOW
 
 #ifdef _MSC_VER
 
 #include <windows.h>
+#include "local_elf.h"
 
 struct File {
 
@@ -27,6 +27,7 @@ struct File {
   HANDLE hFileMap {};
   char* mem;
   path p;
+  size_t file_sz;
   
   static const size_t page_size() {
     SYSTEM_INFO sysInfo;
@@ -40,11 +41,13 @@ struct File {
       cerr << "cannot read a file" << endl;
       exit(-1);
     }
+    file_sz = static_cast<size_t>(GetFileSize(f, NULL));
   }   
 
   void* createMap() {
-    hFileMap = CreateFileMapping(f, NULL, PAGE_READONLY, 0, 0, NULL);
-    mem = static_cast<char*>(MapViewOfFile(hFileMapping, FILE_MAP_ALL_ACCESS, 0, 0, 5));
+    hFileMap = CreateFileMapping(f, NULL, PAGE_READWRITE, 0, 0, NULL);
+    mem = static_cast<char*>(MapViewOfFile(hFileMapping, FILE_MAP_ALL_ACCESS, 0, 0, file_sz));
+    return mem;
   }
 
 
@@ -77,12 +80,19 @@ struct File {
     SetFilePointer(f, pos & 0xffff, pos & (0xffff << 8*2), whence);
   }
 
+  size_t size() {
+    return file_sz;
+  }
+
+  void insert(const vector<char>&, size_t);
+  void insert(const char*,size_t, size_t);
+
   ~File() {
-    closeHandle(f);
     if (hFileMap) {
-      closeHandle(hFileMap);
       UnmapViewOfFile(static_cast<LPVOID>(mem));
+      closeHandle(hFileMap);
     }
+    closeHandle(f);
   }
 
 
@@ -94,6 +104,7 @@ struct File {
 #include <sys/mman.h> 
 #include <unistd.h>
 #include <fcntl.h>
+#include "local_windows.h"
 
 #define abort(mes) perror(mes), exit(0);
 

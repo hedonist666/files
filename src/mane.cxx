@@ -1,6 +1,6 @@
 #define PRODUCTION
 
-#include "actions.cxx"
+#include "executable.cxx"
 
 
 auto parse_args(int argc, char** argv) {
@@ -11,10 +11,22 @@ auto parse_args(int argc, char** argv) {
 
   map<string, function<void(int, char**)>> functions;
 
-  functions["insert-text-end"] = [](int n, char** args) {
+  functions["show"] = [] (int n, char** args) {
+    string_view sig{"void show(path p)"}; 
+
+    if (n < 1) {
+      cerr << "not enough args for function (" << sig << ")" << endl;
+    }
+
+    show(path{args[0]});
+
+  };
+
+  functions["change-entry"] = [](int n, char** args) {
 
     vector<char> v;
     const auto read_file = [&v](auto f) {
+      f.seek(0);
       v.resize(f.size());
       f.gets(v); 
     };
@@ -32,7 +44,7 @@ auto parse_args(int argc, char** argv) {
     
     cout << "ok. executing function..." << endl;
 
-    return text_end_insert(ex, v);        
+    return change_entry(ex, v);        
 
   };
 

@@ -25,11 +25,9 @@ const auto readfile = [] (auto p) {
 
 TEST_CASE("testing executables") {
 
-  string info { readfile(path{"info.test"}) };
-
-  ELF64 e { path{"data"} / path{"a.out"} };
-
   SECTION("elf show") {
+    string info { readfile(path{"info.test"}) };
+    ELF64 e { path{"data"} / path{"a.out"} };
     REQUIRE( e.show() == info );    
   }
 
