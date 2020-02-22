@@ -1,8 +1,14 @@
-#define DWORD unsigned int
-#define USHORT unsigned short
-#define WORD unsigned short
-#define LONG long
-#define BYTE unsigned char
+#define IMAGE_FILE_MACHINE_AMD64 0x8664 
+#define IMAGE_FILE_MACHINE_I386 0x14c 
+#define IMAGE_FILE_MACHINE_IA64 0x200
+
+#include <cstdint>
+
+#define DWORD Elf32_Addr
+#define USHORT uint16_t
+#define WORD uint16_t
+#define LONG uint32_t
+#define BYTE uint8_t
 #define IMAGE_SIZEOF_SHORT_NAME 8
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 15
 
@@ -175,6 +181,20 @@ typedef struct _IMAGE_SECTION_HEADER {
   DWORD Characteristics;
 } IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;
 
+
+typedef struct _IMAGE_IMPORT_BY_NAME {
+    WORD    Hint;
+    BYTE    Name[1];
+} IMAGE_IMPORT_BY_NAME,*PIMAGE_IMPORT_BY_NAME;
+
+typedef struct _IMAGE_THUNK_DATA {
+    union {
+        uint32_t* Function;             // address of imported function
+        uint32_t  Ordinal;              // ordinal value of function
+        PIMAGE_IMPORT_BY_NAME AddressOfData;        // RVA of imported name
+        DWORD ForwarderString;              // RVA to forwarder string
+    } u1;
+} IMAGE_THUNK_DATA, *PIMAGE_THUNK_DATA;
 
 typedef struct _IMAGE_IMPORT_DESCRIPTOR {
         union {

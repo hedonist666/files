@@ -127,14 +127,14 @@ struct PE : File {
   OPT opt {};
   PIMAGE_SECTION_HEADER import_section {};
   PIMAGE_IMPORT_DESCRIPTOR import_desc {};
-  DWORD import_offset {};
+  size_t import_offset {};
   
   PE(path p) : File{p} {
     dos  = static_cast<decltype(dos)>(createMap());
-    nt   = static_cast<decltype(nt)>(mem + dos->e_lfanew);
+    nt   = reinterpret_cast<decltype(nt)>(mem + dos->e_lfanew);
     fhdr = static_cast<decltype(fhdr)>(&nt->FileHeader);
     opt  = static_cast<decltype(opt)>(&nt->OptionalHeader);
-    shdr = static_cast<decltype(shdr)>(mem + dos->e_lfanew + sizeof(nt->Signature) +
+    shdr = reinterpret_cast<decltype(shdr)>(mem + dos->e_lfanew + sizeof(nt->Signature) +
         sizeof(IMAGE_FILE_HEADER) + fhdr->SizeOfOptionalHeader);
 
     auto importRVA = opt->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress;
@@ -144,16 +144,18 @@ struct PE : File {
         import_section = &shdr[i];
       }
     }
-    import_offset = mem + import_section->PointerToRawData;
-    import_desc = static_cast<decltype(import_desc)>(import_offset + (opt->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress - import_section->VirtualAddress));
+    //import_offset = reinterpret_cast<decltype(import_offset)>(mem + import_section->PointerToRawData);
+    auto tmpv = mem + import_section->PointerToRawData;
+    import_offset = *(decltype(import_offset)*)(&tmpv);
+    import_desc = reinterpret_cast<decltype(import_desc)>(import_offset + (opt->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress - import_section->VirtualAddress));
   }
 
   PE(File&& f) : File(f) {
     dos  = static_cast<decltype(dos)>(createMap());
-    nt   = static_cast<decltype(nt)>(mem + dos->e_lfanew);
+    nt   = reinterpret_cast<decltype(nt)>(mem + dos->e_lfanew);
     fhdr = static_cast<decltype(fhdr)>(&nt->FileHeader);
     opt  = static_cast<decltype(opt)>(&nt->OptionalHeader);
-    shdr = static_cast<decltype(shdr)>(mem + dos->e_lfanew + sizeof(nt->Signature) +
+    shdr = reinterpret_cast<decltype(shdr)>(mem + dos->e_lfanew + sizeof(nt->Signature) +
         sizeof(IMAGE_FILE_HEADER) + fhdr->SizeOfOptionalHeader);
 
     auto importRVA = opt->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress;
@@ -163,8 +165,10 @@ struct PE : File {
         import_section = &shdr[i];
       }
     }
-    import_offset = mem + import_section->PointerToRawData;
-    import_desc = static_cast<decltype(import_desc)>(import_offset + (opt->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress - import_section->VirtualAddress));
+    //import_offset = reinterpret_cast<decltype(import_offset)>(mem + import_section->PointerToRawData);
+    auto tmpv = mem + import_section->PointerToRawData;
+    import_offset = *(DWORD*)(&tmpv);
+    import_desc = reinterpret_cast<decltype(import_desc)>(import_offset + (opt->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress - import_section->VirtualAddress));
   }
 
 
@@ -180,7 +184,7 @@ struct PE : File {
   string show() {
     stringstream message;
     message << "PE file on ";
-    switch (nt->Machine) {
+    switch (fhdr->Machine) {
       case(IMAGE_FILE_MACHINE_I386):
         message << "Intel 80386" << endl;
         break;
@@ -195,31 +199,35 @@ struct PE : File {
     }
     message << "with entry point: 0x" << hex << opt->AddressOfEntryPoint << endl;
     message << "section headers: " << endl;
-    for (size_t i{}; i < nt->NumberOfSections; ++i) {
+    for (size_t i{}; i < fhdr->NumberOfSections; ++i) {
       message << shdr[i].Name << ": 0x" << shdr[i].VirtualAddress << endl;
     }
     message << endl;
+    /*
     message << "symbols: " << endl;
     for (size_t i{}; i < fhdr->NumberOfSymbols; ++i) {
       message << fhdr->PointerToSymbolTable[i] << endl;
     }
     message << endl;
+    */
 
     message << "Imports: " << endl;
 
     for (auto id {import_desc}; id->Name != 0; ++id) {
 
-      message << import_offset + (import_desc->Name - import_section->VirualAddress) << endl;
+      message << (char*)(import_offset + (import_desc->Name - import_section->VirtualAddress)) << endl;
       auto thunk = import_desc->OriginalFirstThunk == 0 ? import_desc->FirstThunk : import_desc->OriginalFirstThunk;
-      auto thunkData = static_cast<PIMAGE_THUNK_DATA>(import_offset  + (thunk - import_section->VirtualAddress));
+      auto thunkData = reinterpret_cast<PIMAGE_THUNK_DATA>(import_offset  + (thunk - import_section->VirtualAddress));
 
       for (; thunkData->u1.AddressOfData != 0; ++thunkData) {
 
-        if (thunkData->u1.AddressOfData > 0x80000000) {
-          message << "Ordinal: " << static_cast<DWORD>(thunkData->u1.AddressOfData) << endl;
+        if (thunkData->u1.AddressOfData > (decltype(thunkData->u1.AddressOfData))0x80000000) {
+          message << "Ordinal: " << *(DWORD*)(&thunkData->u1.AddressOfData) << endl;
         } 
         else {
-          message << import_offset + (thunkData->u1.AddressOfData - import_section->VirualAddress + 2) << endl;
+          auto tmp_addr = import_offset + (reinterpret_cast<decltype(thunkData->u1.AddressOfData)>(import_section->VirtualAddress) - 
+                thunkData->u1.AddressOfData + 2);
+          message << (char*)(tmp_addr) << endl;
         }
 
       }
